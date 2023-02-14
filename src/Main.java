@@ -9,7 +9,7 @@ public class Main {
             File file = new File(path);
             file.getParentFile().mkdirs();
             file.createNewFile();
-            try (FileOutputStream fileOutputStream = new FileOutputStream(file, false)) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file, true)) {
                 try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
                     objectOutputStream.writeObject(gameProgress);
                 }
@@ -24,13 +24,16 @@ public class Main {
             try (FileOutputStream fileOutputStream = new FileOutputStream(path)) {
                 try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
                     for (String filePath : files) {
-                        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-                            ZipEntry zipEntry = new ZipEntry(filePath);
+                        File file = new File(filePath);
+                        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                            ZipEntry zipEntry = new ZipEntry(file.getName());
                             zipOutputStream.putNextEntry(zipEntry);
-                            int read = fileInputStream.read();
-                            zipOutputStream.write(read);
+                            int length;
+                            byte[] buffer = new byte[1024];
+                            while ((length = fileInputStream.read(buffer)) > 0) {
+                                zipOutputStream.write(buffer, 0, length);
+                            }
                             zipOutputStream.closeEntry();
-                            File file = new File(filePath);
                             if (file.delete()) {
                                 System.out.println("Файл \"" + filePath + "\" успешно заархивирован.");
                             }
