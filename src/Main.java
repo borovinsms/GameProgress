@@ -34,9 +34,7 @@ public class Main {
                                 zipOutputStream.write(buffer, 0, length);
                             }
                             zipOutputStream.closeEntry();
-                            if (file.delete()) {
-                                System.out.println("Файл \"" + filePath + "\" успешно заархивирован.");
-                            }
+                            file.deleteOnExit();
                         }
                     }
                 }
